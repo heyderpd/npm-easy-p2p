@@ -1,0 +1,38 @@
+{
+  "name": "easy-p2p",
+  "version": "0.2.5",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "transpile": "babel src --out-dir dist",
+    "test": "mocha --compilers js:babel-register --reporter spec 'test/*.spec.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heyderpd/npm-easy-p2p.git"
+  },
+  "keywords": [
+    "peer",
+    "p2p",
+    "easy",
+    "simple"
+  ],
+  "author": "NPM easy-p2p <heyderpd@gmail.com> (http://heyderpd.github.io)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/heyderpd/npm-easy-p2p/issues"
+  },
+  "homepage": "https://github.com/heyderpd/npm-easy-p2p#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0"
+  },
+  "dependencies": {
+    "peerjs": "^0.3.14",
+    "randomstring": "^1.1.5"
+  }
+}
