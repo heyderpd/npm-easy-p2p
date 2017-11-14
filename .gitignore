@@ -3,6 +3,7 @@ npm-debug*
 
 node_modules/*
 test/*
+test/devkey
 
 package-lock.json
 *.gif
