@@ -39,6 +39,12 @@ const peerConnection = key => {
     }
   }
 
+  const _sendError = (title, msg) => {
+    const error = { title, msg }
+    console.error(error)
+    _safeOnData({ error })
+  }
+
   const _onConnection = conn => {
     state.connection = conn
     state.peer.on('open', _onOpen)
@@ -50,19 +56,33 @@ const peerConnection = key => {
   const object = {}
 
   object.host = () => {
-    _setHost()
-    state.peer.on('connection', _onConnection)
+    try {
+      _setHost()
+      state.peer.on('connection', _onConnection)
+
+    } catch (error) {
+      _sendError("can't host", error)
+    }
     return object
   }
 
   object.join = id => {
-    _setJoin()
-    const conn = state.peer.connect(id)
-    _onConnection(conn)
+    try {
+      _setJoin()
+      const conn = state.peer.connect(id)
+      _onConnection(conn)
+
+    } catch (error) {
+      _sendError("can't join", error)
+    }
     return object
   }
 
   object.getId = () => state.peer.id
+
+  object.isHost = () => state.host
+
+  object.isJoin = () => state.join
 
   object.setOnData = onData => {
     state.onData = onData
