@@ -33,7 +33,7 @@ const peerConnection = key => {
 
   const _sendInfo = (title, msg) => {
     const error = { title, msg }
-    console.error(error)
+    console.warn(error)
     _safeOnData({ error })
   }
 
@@ -72,6 +72,7 @@ const peerConnection = key => {
     try {
       _setHost()
       state.peer.on('connection', _onConnection)
+      _sendInfo('host, success')
 
     } catch (error) {
       _sendInfo("can't host", error)
@@ -84,6 +85,7 @@ const peerConnection = key => {
       _setJoin()
       const conn = state.peer.connect(id)
       _onConnection(conn)
+      _sendInfo('join, success')
 
     } catch (error) {
       _sendInfo("can't join", error)
@@ -96,6 +98,7 @@ const peerConnection = key => {
       state.host = false
       state.join = false
       state.peer.destroy()
+      _sendInfo('abort, success')
 
     } catch (error) {
       _sendInfo("can't abort", error)

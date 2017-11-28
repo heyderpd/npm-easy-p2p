@@ -46,7 +46,7 @@ var peerConnection = function peerConnection(key) {
 
   var _sendInfo = function _sendInfo(title, msg) {
     var error = { title: title, msg: msg };
-    console.error(error);
+    console.warn(error);
     _safeOnData({ error: error });
   };
 
@@ -84,6 +84,7 @@ var peerConnection = function peerConnection(key) {
     try {
       _setHost();
       state.peer.on('connection', _onConnection);
+      _sendInfo('host, success');
     } catch (error) {
       _sendInfo("can't host", error);
     }
@@ -95,6 +96,7 @@ var peerConnection = function peerConnection(key) {
       _setJoin();
       var conn = state.peer.connect(id);
       _onConnection(conn);
+      _sendInfo('join, success');
     } catch (error) {
       _sendInfo("can't join", error);
     }
@@ -106,6 +108,7 @@ var peerConnection = function peerConnection(key) {
       state.host = false;
       state.join = false;
       state.peer.destroy();
+      _sendInfo('abort, success');
     } catch (error) {
       _sendInfo("can't abort", error);
     }
