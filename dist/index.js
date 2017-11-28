@@ -24,14 +24,6 @@ var peerConnection = function peerConnection(key) {
     join: false
   };
 
-  var _onOpen = function _onOpen() {
-    state.opened = true;
-  };
-
-  var _onClose = function _onClose() {
-    state.opened = false;
-  };
-
   var _setHost = function _setHost() {
     state.host = true;
     state.join = false;
@@ -52,33 +44,68 @@ var peerConnection = function peerConnection(key) {
     }
   };
 
+  var _sendError = function _sendError(title, msg) {
+    var error = { title: title, msg: msg };
+    console.error(error);
+    _safeOnData({ error: error });
+  };
+
+  var _onOpen = function _onOpen(info) {
+    _sendError('on.open', info);
+    state.opened = true;
+  };
+
+  var _onClose = function _onClose(info) {
+    _sendError('on.close', info);
+    state.opened = false;
+  };
+
+  var _onError = function _onError(error) {
+    _sendError('on.error', error);
+    state.opened = false;
+  };
+
   var _onConnection = function _onConnection(conn) {
     state.connection = conn;
     state.peer.on('open', _onOpen);
     state.peer.on('close', _onClose);
-    state.peer.on('error', function (err) {
-      return _onClose(), console.log('-*-error', err);
-    });
+    state.peer.on('error', _onError);
     conn.on('data', _safeOnData);
   };
 
   var object = {};
 
   object.host = function () {
-    _setHost();
-    state.peer.on('connection', _onConnection);
+    try {
+      _setHost();
+      state.peer.on('connection', _onConnection);
+    } catch (error) {
+      _sendError("can't host", error);
+    }
     return object;
   };
 
   object.join = function (id) {
-    _setJoin();
-    var conn = state.peer.connect(id);
-    _onConnection(conn);
+    try {
+      _setJoin();
+      var conn = state.peer.connect(id);
+      _onConnection(conn);
+    } catch (error) {
+      _sendError("can't join", error);
+    }
     return object;
   };
 
   object.getId = function () {
     return state.peer.id;
+  };
+
+  object.isHost = function () {
+    return state.host;
+  };
+
+  object.isJoin = function () {
+    return state.join;
   };
 
   object.setOnData = function (onData) {

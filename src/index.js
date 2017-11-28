@@ -11,14 +11,6 @@ const peerConnection = key => {
     join: false
   }
 
-  const _onOpen = () => {
-    state.opened = true
-  }
-
-  const _onClose = () => {
-    state.opened = false
-  }
-
   const _setHost = () => {
     state.host = true
     state.join = false
@@ -45,11 +37,26 @@ const peerConnection = key => {
     _safeOnData({ error })
   }
 
+  const _onOpen = info => {
+    _sendError('on.open', info)
+    state.opened = true
+  }
+
+  const _onClose = info => {
+    _sendError('on.close', info)
+    state.opened = false
+  }
+
+  const _onError = error => {
+    _sendError('on.error', error)
+    state.opened = false
+  }
+
   const _onConnection = conn => {
     state.connection = conn
     state.peer.on('open', _onOpen)
     state.peer.on('close', _onClose)
-    state.peer.on('error', err => (_onClose(), console.log('-*-error', err)))
+    state.peer.on('error', _onError)
     conn.on('data', _safeOnData)
   }
 
