@@ -44,33 +44,38 @@ var peerConnection = function peerConnection(key) {
     }
   };
 
-  var _sendError = function _sendError(title, msg) {
+  var _sendInfo = function _sendInfo(title, msg) {
     var error = { title: title, msg: msg };
     console.error(error);
     _safeOnData({ error: error });
   };
 
   var _onOpen = function _onOpen(info) {
-    _sendError('on.open', info);
+    _sendInfo('on.open', info);
     state.opened = true;
   };
 
   var _onClose = function _onClose(info) {
-    _sendError('on.close', info);
+    _sendInfo('on.close', info);
     state.opened = false;
   };
 
   var _onError = function _onError(error) {
-    _sendError('on.error', error);
+    _sendInfo('on.error', error);
     state.opened = false;
   };
 
   var _onConnection = function _onConnection(conn) {
-    state.connection = conn;
-    state.peer.on('open', _onOpen);
-    state.peer.on('close', _onClose);
-    state.peer.on('error', _onError);
-    conn.on('data', _safeOnData);
+    try {
+      _sendInfo('on.connection', { id: conn.peer });
+      state.connection = conn;
+      state.peer.on('open', _onOpen);
+      state.peer.on('close', _onClose);
+      state.peer.on('error', _onError);
+      conn.on('data', _safeOnData);
+    } catch (error) {
+      _sendInfo("can't connection", error);
+    }
   };
 
   var object = {};
@@ -80,7 +85,7 @@ var peerConnection = function peerConnection(key) {
       _setHost();
       state.peer.on('connection', _onConnection);
     } catch (error) {
-      _sendError("can't host", error);
+      _sendInfo("can't host", error);
     }
     return object;
   };
@@ -91,7 +96,18 @@ var peerConnection = function peerConnection(key) {
       var conn = state.peer.connect(id);
       _onConnection(conn);
     } catch (error) {
-      _sendError("can't join", error);
+      _sendInfo("can't join", error);
+    }
+    return object;
+  };
+
+  object.abort = function () {
+    try {
+      state.host = false;
+      state.join = false;
+      state.peer.destroy();
+    } catch (error) {
+      _sendInfo("can't abort", error);
     }
     return object;
   };

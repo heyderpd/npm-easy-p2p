@@ -31,33 +31,39 @@ const peerConnection = key => {
     }
   }
 
-  const _sendError = (title, msg) => {
+  const _sendInfo = (title, msg) => {
     const error = { title, msg }
     console.error(error)
     _safeOnData({ error })
   }
 
   const _onOpen = info => {
-    _sendError('on.open', info)
+    _sendInfo('on.open', info)
     state.opened = true
   }
 
   const _onClose = info => {
-    _sendError('on.close', info)
+    _sendInfo('on.close', info)
     state.opened = false
   }
 
   const _onError = error => {
-    _sendError('on.error', error)
+    _sendInfo('on.error', error)
     state.opened = false
   }
 
   const _onConnection = conn => {
-    state.connection = conn
-    state.peer.on('open', _onOpen)
-    state.peer.on('close', _onClose)
-    state.peer.on('error', _onError)
-    conn.on('data', _safeOnData)
+    try {
+      _sendInfo('on.connection', { id: conn.peer })
+      state.connection = conn
+      state.peer.on('open', _onOpen)
+      state.peer.on('close', _onClose)
+      state.peer.on('error', _onError)
+      conn.on('data', _safeOnData)
+
+    } catch (error) {
+      _sendInfo("can't connection", error)
+    }
   }
 
   const object = {}
@@ -68,7 +74,7 @@ const peerConnection = key => {
       state.peer.on('connection', _onConnection)
 
     } catch (error) {
-      _sendError("can't host", error)
+      _sendInfo("can't host", error)
     }
     return object
   }
@@ -80,7 +86,19 @@ const peerConnection = key => {
       _onConnection(conn)
 
     } catch (error) {
-      _sendError("can't join", error)
+      _sendInfo("can't join", error)
+    }
+    return object
+  }
+
+  object.abort = () => {
+    try {
+      state.host = false
+      state.join = false
+      state.peer.destroy()
+
+    } catch (error) {
+      _sendInfo("can't abort", error)
     }
     return object
   }
