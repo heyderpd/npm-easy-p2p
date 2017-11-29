@@ -31,11 +31,17 @@ const peerConnection = key => {
     }
   }
 
-  const _sendInfo = (title, msg) => {
-    const obj = { title, msg }
-    console.warn(obj)
-    _safeOnData(obj)
+  const _sendPacket = actionType => (title, msg) => {
+    const action = `easy-p2p:${actionType}`
+    const payload = { title, msg }
+    const packet = { action, payload }
+    console.warn(packet)
+    _safeOnData(packet)
   }
+
+  const _sendInfo = _sendPacket('info')
+
+  const _sendError = _sendPacket('error')
 
   const _onOpen = info => {
     _sendInfo('on.open', info)
@@ -48,7 +54,7 @@ const peerConnection = key => {
   }
 
   const _onError = error => {
-    _sendInfo('on.error', error)
+    _sendError('on.error', error)
     state.opened = false
   }
 
@@ -62,7 +68,7 @@ const peerConnection = key => {
       conn.on('data', _safeOnData)
 
     } catch (error) {
-      _sendInfo("can't connection", error)
+      _sendError("can't connection", error)
     }
   }
 
@@ -75,7 +81,7 @@ const peerConnection = key => {
       _sendInfo('host, success')
 
     } catch (error) {
-      _sendInfo("can't host", error)
+      _sendError("can't host", error)
     }
     return object
   }
@@ -88,7 +94,7 @@ const peerConnection = key => {
       _sendInfo('join, success')
 
     } catch (error) {
-      _sendInfo("can't join", error)
+      _sendError("can't join", error)
     }
     return object
   }
@@ -101,7 +107,7 @@ const peerConnection = key => {
       _sendInfo('abort, success')
 
     } catch (error) {
-      _sendInfo("can't abort", error)
+      _sendError("can't abort", error)
     }
     return object
   }

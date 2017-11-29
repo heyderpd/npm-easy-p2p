@@ -44,11 +44,19 @@ var peerConnection = function peerConnection(key) {
     }
   };
 
-  var _sendInfo = function _sendInfo(title, msg) {
-    var obj = { title: title, msg: msg };
-    console.warn(obj);
-    _safeOnData(obj);
+  var _sendPacket = function _sendPacket(actionType) {
+    return function (title, msg) {
+      var action = 'easy-p2p:' + actionType;
+      var payload = { title: title, msg: msg };
+      var packet = { action: action, payload: payload };
+      console.warn(packet);
+      _safeOnData(packet);
+    };
   };
+
+  var _sendInfo = _sendPacket('info');
+
+  var _sendError = _sendPacket('error');
 
   var _onOpen = function _onOpen(info) {
     _sendInfo('on.open', info);
@@ -61,7 +69,7 @@ var peerConnection = function peerConnection(key) {
   };
 
   var _onError = function _onError(error) {
-    _sendInfo('on.error', error);
+    _sendError('on.error', error);
     state.opened = false;
   };
 
@@ -74,7 +82,7 @@ var peerConnection = function peerConnection(key) {
       state.peer.on('error', _onError);
       conn.on('data', _safeOnData);
     } catch (error) {
-      _sendInfo("can't connection", error);
+      _sendError("can't connection", error);
     }
   };
 
@@ -86,7 +94,7 @@ var peerConnection = function peerConnection(key) {
       state.peer.on('connection', _onConnection);
       _sendInfo('host, success');
     } catch (error) {
-      _sendInfo("can't host", error);
+      _sendError("can't host", error);
     }
     return object;
   };
@@ -98,7 +106,7 @@ var peerConnection = function peerConnection(key) {
       _onConnection(conn);
       _sendInfo('join, success');
     } catch (error) {
-      _sendInfo("can't join", error);
+      _sendError("can't join", error);
     }
     return object;
   };
@@ -110,7 +118,7 @@ var peerConnection = function peerConnection(key) {
       state.peer.destroy();
       _sendInfo('abort, success');
     } catch (error) {
-      _sendInfo("can't abort", error);
+      _sendError("can't abort", error);
     }
     return object;
   };
