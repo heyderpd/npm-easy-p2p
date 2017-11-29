@@ -45,9 +45,9 @@ var peerConnection = function peerConnection(key) {
   };
 
   var _sendInfo = function _sendInfo(title, msg) {
-    var error = { title: title, msg: msg };
-    console.warn(error);
-    _safeOnData({ error: error });
+    var obj = { title: title, msg: msg };
+    console.warn(obj);
+    _safeOnData(obj);
   };
 
   var _onOpen = function _onOpen(info) {

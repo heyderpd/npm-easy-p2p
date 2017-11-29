@@ -32,9 +32,9 @@ const peerConnection = key => {
   }
 
   const _sendInfo = (title, msg) => {
-    const error = { title, msg }
-    console.warn(error)
-    _safeOnData({ error })
+    const obj = { title, msg }
+    console.warn(obj)
+    _safeOnData(obj)
   }
 
   const _onOpen = info => {
