@@ -1,5 +1,4 @@
-import Peer from 'peerjs'
-import randomstring from 'randomstring'
+import Send from './client'
 
 const peerConnection = key => {
   const state = {
@@ -22,7 +21,7 @@ const peerConnection = key => {
   }
 
   const _initialize = key => {
-    state.peer = new Peer(randomstring.generate(5), { key })
+    state.peer = new Peer({ key })
   }
 
   const _safeOnData = data => {
@@ -124,7 +123,7 @@ const peerConnection = key => {
   }
 
   object.send = data => {
-    state.connection.send(data)
+    Send(data)
     return object
   }
 
